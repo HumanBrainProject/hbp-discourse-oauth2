@@ -1,0 +1,5 @@
+login:
+  hbp_client_id:
+    default: ''
+  hbp_client_secret:
+    default: ''

@@ -1,0 +1,8 @@
+# encoding: utf-8
+
+en:
+  js:
+    login:
+      hbpoauth2:
+        title: "with Human Brain Project"
+        message: "Authenticating with Human Brain Project"
