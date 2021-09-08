@@ -15,7 +15,7 @@ module OmniAuth
 
       API_VERSION = '5.2'
 
-      DEFAULT_SCOPE = 'openid'
+      DEFAULT_SCOPE = 'openid profile email'
 
       option :name, 'hbpoauth2'
 
