@@ -15,14 +15,14 @@ module OmniAuth
 
       API_VERSION = '5.2'
 
-      DEFAULT_SCOPE = 'openid'
+      DEFAULT_SCOPE = 'openid profile email'
 
       option :name, 'hbpoauth2'
 
       option :client_options, {
-        :site          => 'https://services.humanbrainproject.eu/',
-        :authorize_url => 'https://services.humanbrainproject.eu/oidc/authorize',
-        :token_url     => 'https://services.humanbrainproject.eu/oidc/token',
+        :site          => 'https://iam.ebrains.eu/',
+        :authorize_url => 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/auth',
+        :token_url     => 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/token',
       }
 
       option :authorize_options, [:scope, :display]
@@ -31,11 +31,11 @@ module OmniAuth
 
       info do
         {
-          :name       => raw_info['username'],
-          :nickname   => raw_info['displayName'],
-          :email      => raw_info['emails'].first['value'],
-          :first_name => raw_info['givenName'],
-          :last_name  => raw_info['familyName'],
+          :name       => raw_info['name'],
+          :nickname   => raw_info['preferred_username'],
+          :email      => raw_info['email'],
+          :first_name => raw_info['given_name'],
+          :last_name  => raw_info['family_name'],
         }
       end
 
@@ -49,7 +49,7 @@ module OmniAuth
         access_token.options[:mode] = :query
         access_token.options[:param_name] = :access_token
         @raw_info ||= begin
-          result = access_token.get('/idm/v1/api/user/me').parsed
+          result = access_token.get('/auth/realms/hbp/protocol/openid-connect/userinfo').parsed
         end
       end
 
