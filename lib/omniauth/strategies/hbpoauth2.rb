@@ -3,10 +3,10 @@ require 'multi_json'
 require 'pp'
 
 # This parser is needed in order to handle hal json responses returned by idm/v1 endpoints
-require 'oauth2/response'
-::OAuth2::Response.register_parser(:hal_json, ['application/hal+json']) do |body|
-  MultiJson.load(body) rescue body
-end
+#require 'oauth2/response'
+#::OAuth2::Response.register_parser(:hal_json, ['application/hal+json']) do |body|
+#  MultiJson.load(body) rescue body
+#end
 
 module OmniAuth
   module Strategies
@@ -15,27 +15,27 @@ module OmniAuth
 
       API_VERSION = '5.2'
 
-      DEFAULT_SCOPE = 'openid'
+      DEFAULT_SCOPE = 'openid profile email'
 
       option :name, 'hbpoauth2'
 
       option :client_options, {
-        :site          => 'https://services.humanbrainproject.eu/',
-        :authorize_url => 'https://services.humanbrainproject.eu/oidc/authorize',
-        :token_url     => 'https://services.humanbrainproject.eu/oidc/token',
+        :site          => 'https://iam.ebrains.eu/',
+        :authorize_url => 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/auth',
+        :token_url     => 'https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/token',
       }
 
       option :authorize_options, [:scope, :display]
 
-      uid { raw_info['id'].to_s }
+      uid { raw_info['preferred_username'].to_s }
 
       info do
         {
-          :name       => raw_info['username'],
-          :nickname   => raw_info['displayName'],
-          :email      => raw_info['emails'].first['value'],
-          :first_name => raw_info['givenName'],
-          :last_name  => raw_info['familyName'],
+          :name       => raw_info['name'],
+          :nickname   => raw_info['preferred_username'],
+          :email      => raw_info['email'],
+          :first_name => raw_info['given_name'],
+          :last_name  => raw_info['family_name'],
         }
       end
 
@@ -45,13 +45,23 @@ module OmniAuth
         }
       end
 
-      def raw_info
-        access_token.options[:mode] = :query
-        access_token.options[:param_name] = :access_token
-        @raw_info ||= begin
-          result = access_token.get('/idm/v1/api/user/me').parsed
-        end
-      end
+    	def raw_info
+    	  @raw_info ||= begin
+    	    # 
+    	    # todo build the URI from the settings
+    	    #
+    		uri = URI.parse("https://iam.ebrains.eu/auth/realms/hbp/protocol/openid-connect/userinfo")
+    		#uri = URI.parse("https://services.humanbrainproject.eu/oidc/userinfo")
+    		request = Net::HTTP::Get.new(uri)
+    		request['Authorization'] = 'Bearer ' + access_token.token
+    
+    		response = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+    		  http.request(request)
+    		end
+    		Rails.logger.info "RESPONSE = #{response.body}"
+    		JSON.parse(response.body)
+    	  end
+    	end
 
       def callback_url
         full_host + script_name + callback_path
