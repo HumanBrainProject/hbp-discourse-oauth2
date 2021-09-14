@@ -2,5 +2,5 @@
 
 en:
   site_settings:
-    hbp_client_id: "Client id for HBP"
-    hbp_client_secret: "Client secret for HBP"
+    hbp_client_id: "Client id for IAM"
+    hbp_client_secret: "Client secret for IAM"

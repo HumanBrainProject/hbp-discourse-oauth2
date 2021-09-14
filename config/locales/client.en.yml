@@ -4,5 +4,5 @@ en:
   js:
     login:
       hbpoauth2:
-        title: "with Human Brain Project"
-        message: "Authenticating with Human Brain Project"
+        title: "with EBRAINS"
+        message: "Authenticating with EBRAINS"
